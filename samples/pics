@@ -1,0 +1,6 @@
+spiderweb python3 mandelbort.py 1000 -0.57 -0.645 0.04 100 l
+waterplants python3 mandelbort.py 1000 -0.57 -0.646 0.002 150 l
+snowflake python3 mandelbort.py 1000 -0.56963 -0.64628 0.00006 150 l
+born python3 mandelbort.py 1000 -0.56963 -0.64628 0.00001 200 l
+bacteria python3 mandelbort.py 1000 -0.569624 -0.64628 0.000002 300 l
+hairs python3 mandelbort.py 1000 -0.569624 -0.6462805 0.0000001 800 l

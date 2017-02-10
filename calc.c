@@ -64,14 +64,14 @@ static int color_len = 0;
 
 inline static ColorI get_color(double x) {
 	static ColorR buf[MAX_LEN];
-	for(int i=0; i<MAX_LEN - 1; ++i) {
+	for(int i=0; i<color_len - 1; ++i) {
 #define COMP(c) buf[i].c = color[i].c + (color[i+1].c - color[i].c) * x
 		COMP(r);
 		COMP(g);
 		COMP(b);
 #undef COMP
 	}
-	int len = MAX_LEN - 1;
+	int len = color_len - 1;
 	while(len > 1) {
 #define COMP(c) buf[i].c = buf[i].c + (buf[i+1].c - buf[i].c) * x
 		for(int i=0; i<len-1; ++i) {
