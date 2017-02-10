@@ -1,17 +1,38 @@
-#include <math.h>
-
 static double min_x;
 static double min_y;
 static double dx;
 static double dy;
 static double width;
 static double height;
+static long double min_x_l;
+static long double min_y_l;
+static long double dx_l;
+static long double dy_l;
+static long double width_l;
+static long double height_l;
 static int depth;
 
 inline static double julia(double x, double y) {
 	double zx = 0;
 	double zy = 0;
 	double zx1, zy1;
+	for(int i=0; i<depth; ++i) {
+		zx1 = (zx * zx) - (zy * zy) + x;
+		zy1 = zx * zy * 2 + y;
+		if(zx1 * zx1 + zy1 * zy1 > 4)
+			return (double)i;
+		else {
+			zx = zx1;
+			zy = zy1;
+		}
+	}
+	return (double)depth;
+}
+
+inline static double julia_long(long double x, long double y) {
+	long double zx = 0;
+	long double zy = 0;
+	long double zx1, zy1;
 	for(int i=0; i<depth; ++i) {
 		zx1 = (zx * zx) - (zy * zy) + x;
 		zy1 = zx * zy * 2 + y;
@@ -66,10 +87,6 @@ inline static ColorI get_color(double x) {
 	res.g = (int)buf[0].g;
 	res.b = (int)buf[0].b;
 	return res;
-//	int r = ((int)buf[0].r) * 0xff * 0xff;
-//	int g = ((int)buf[0].g) * 0xff;
-//	int b = (int)buf[0].b;
-//	return r | g | b;
 }
 
 void null_clr() {
@@ -91,6 +108,13 @@ void init_win(int w, int h, double x, double X, double y, double Y, int d) {
 	depth = d;
 	width = (double)w;
 	height = (double)h;
+	
+	dx_l = dx;
+	min_x_l = min_x;
+	dy_l = dy;
+	min_y_l = min_y;
+	width_l = width;
+	height_l = height;
 }
 
 ColorI point_color(int px, int py) {
@@ -99,4 +123,12 @@ ColorI point_color(int px, int py) {
 	x = min_x + x * dx;
 	y = min_y + y * dy;
 	return get_color(julia(x,y) / depth);
+}
+
+ColorI point_color_long(int px, int py) {
+	long double x = (long double)px / width_l;
+	long double y = (long double)py / height_l;
+	x = min_x_l + x * dx_l;
+	y = min_y_l + y * dy_l;
+	return get_color(julia_long(x,y) / depth);
 }
