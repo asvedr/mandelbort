@@ -7,20 +7,20 @@ import os
 color_sets = [
         [
             (0,0,0),
-            (0,0,255),
+            (255,0,0),
             (255,255,0),
             (255,255,255)
         ],
         [
             (0,0,0),
             (0,0,255),
-#            (0,255,0),
             (255,255,0),
             (255,255,255)
         ],
-        [(0x05,0x37,0x79), (0x14,0x7D,0x0D), (0xff, 0xff, 0xff), (0xCC,0xFF,0x00)],
-        [(0,0,0), (0xff,0xff,0xff)],
+        [(0,0,0), (0x14,0x7D,0x0D), (0xff, 0xff, 0), (255,255,255), (0,0,0)],
+        [(255,255,255),(0,255,255),(0,0,0)],
         [(0,0,0), (0,0xff,0), (0x33,0xff,0x33), (0x33,0xff,0xff)]
+        [(0,0,0), (0xff,0xff,0xff)],
     ]
 
 class Render:
@@ -72,6 +72,7 @@ if __name__ == "__main__":
     mx = float(sys.argv[3])
     my = float(sys.argv[4])
     d  = float(sys.argv[5])
+    s  = int(sys.argv[6])
     if px < py:
         dx = d
         dy = (py / float(px)) * d
@@ -80,7 +81,8 @@ if __name__ == "__main__":
         dx = (px / float(py)) * d
 #    dx = float(sys.argv[4])
 #    dy = float(sys.argv[5])
-    pic = render.draw(px,py,mx,my,dx,dy,60,0)
+    print(px,py,mx,my,dx,dy,s)
+    pic = render.draw(px,py,mx,my,dx,dy,s,0)
     pic.save('pic.png')
 
 #draw_c(500,500,-2,-1,-0.5,0.5)
