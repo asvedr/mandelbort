@@ -68,11 +68,19 @@ render = Render()
 
 if __name__ == "__main__":
     px = int(sys.argv[1])
-    mx = float(sys.argv[2])
-    my = float(sys.argv[3])
-    dx = float(sys.argv[4])
-    dy = float(sys.argv[5])
-    pic = render.draw(px,px,mx,my,dx,dy,60,0)
+    py = int(sys.argv[2])
+    mx = float(sys.argv[3])
+    my = float(sys.argv[4])
+    d  = float(sys.argv[5])
+    if px < py:
+        dx = d
+        dy = (py / float(px)) * d
+    else:
+        dy = d
+        dx = (px / float(py)) * d
+#    dx = float(sys.argv[4])
+#    dy = float(sys.argv[5])
+    pic = render.draw(px,py,mx,my,dx,dy,60,0)
     pic.save('pic.png')
 
 #draw_c(500,500,-2,-1,-0.5,0.5)
