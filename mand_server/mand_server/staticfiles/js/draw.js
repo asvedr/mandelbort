@@ -16,6 +16,9 @@ var inputSamp;
 var inputZoom;
 var inputX;
 var inputY;
+var activeZoomTarget = null;
+var activeZoomD = null;
+var activeZoomNow = null;
 
 function sclXY() {
 	if(screenSize.x > screenSize.y) {
@@ -96,7 +99,12 @@ function openHighRes() {
 
 var waitfor = 0;
 function drawImg(urlt,urlb) {
-	console.log(urlt, urlb)
+	picShift.x = 0;
+	picShift.y = 0;
+	activeZoomTarget = null;
+	activeZoomD = null;
+	activeZoomNow = null;
+	//console.log(urlt, urlb)
 	image = new Image();
 	bg = new Image();
 	var t = new Date().getTime();
@@ -115,9 +123,22 @@ function drawImg(urlt,urlb) {
 }
 
 function redrawPic() {
+	//console.log(activeZoomNow);
 	var bgp = screenSize.mul(-1).add(picShift);
-	context.drawImage(bg, bgp.x, bgp.y, screenSize.x * 3, screenSize.y * 3);
-	context.drawImage(image, picShift.x, picShift.y, screenSize.x, screenSize.y);
+	if(activeZoomNow != null) {
+		var dbg = screenSize.mul(3 * (1 - activeZoomNow) * 0.5);
+		var pos = bgp.add(dbg);
+		var sz  = screenSize.mul(3 * activeZoomNow);
+		context.drawImage(bg, pos.x, pos.y, sz.x, sz.y);
+		var dfg = screenSize.mul((1 - activeZoomNow) * 0.5);
+		pos = picShift.add(dfg);
+		sz  = screenSize.mul(activeZoomNow);
+		//console.log(activeZoomNow);
+		context.drawImage(image, pos.x, pos.y, sz.x, sz.y);
+	} else {
+		context.drawImage(bg, bgp.x, bgp.y, screenSize.x * 3, screenSize.y * 3);
+		context.drawImage(image, picShift.x, picShift.y, screenSize.x, screenSize.y);
+	}
 }
 
 function mouseMove(e) {
@@ -138,39 +159,38 @@ function newView() {
 	inputX.value = mathpos.x;
 	inputY.value = mathpos.y;
 	requestPicture(screenSize.x, screenSize.y, mathpos, scl, drawImg);
-	picShift.x = 0;
-	picShift.y = 0;
+	//picShift.x = 0;
+	//picShift.y = 0;
 }
 
 function pint (a) {var i = parseInt(a); if(isNaN(i)) {throw 'NaN';} else {return i;}};
 function pfloat (a) {var i = parseFloat(a); if(isNaN(i)) {throw 'NaN';} else {return i;}};
 
-/*
-function fromInputs() {
-	try {
-		samplesCount = pint(inputSamp.value);
-	inputZoom.value = scl;
-	inputX.value = mathpos.x;
-	inputY.value = mathpos.y;
-}*/
-
 function zoom(c) {
 	scl = scl * c;
 	newView();
-	//requestPicture(screenSize.x, screenSize.y, mathpos, scl, drawImg);
+	activeZoomTarget = 1 / c;
+	activeZoomD = ((1 / c) - 1) / 100;
+	activeZoomNow = 1;
 }
 
-function loadBalls(ctx,mid,rad,ang) {
+function loadBalls(ang) {
+	var ctx = context;
+	var mid = screenSize.mul(0.5);
+	var rad = ((mid.x > mid.y)? mid.y: mid.x) * 0.1;
 	ctx.fillStyle = 'white';
 	ctx.strokeStyle = 'black';
 	ctx.lineWidth = 5;
 	
-	ctx.beginPath();
-	var r = rad * 3 + ctx.lineWidth;
-	ctx.rect(mid.x - r, mid.y - r, r * 2, r * 2);
-	ctx.fill();
-	ctx.closePath();
-	
+	if(image != null) {
+		redrawPic();
+	} else {
+		ctx.beginPath();
+		var r = rad * 3 + ctx.lineWidth;
+		ctx.rect(mid.x - r, mid.y - r, r * 2, r * 2);
+		ctx.fill();
+		ctx.closePath();
+	}
 	ctx.beginPath();
 	var center = mid.add(new Point(Math.cos(ang), Math.sin(ang)).mul(rad * 2));
 	ctx.arc(center.x, center.y, rad, 0, 2*Math.PI, false);
@@ -197,8 +217,15 @@ window.onload = function() {
 	inputZoom = document.getElementById("zoom");
 	inputZoom.onchange = function() {
 		try {
-			scl = pfloat(inputZoom.value);
-			newView();
+			//scl = pfloat(inputZoom.value);
+			var s = pfloat(inputZoom.value);
+			if(Math.abs(scl) < 0.000000001) {
+				scl = s;
+				newView();
+			} else {
+				zoom(s / scl);
+			}
+			//newView();
 		} catch(a){}
 	}
 	inputX = document.getElementById("x");
@@ -239,7 +266,6 @@ window.onload = function() {
 	}
 	var pres = [90,88,67,86,66,78];
 	document.onkeydown = function(e) {
-		console.log(e.keyCode);
 		if(e.keyCode == 187) { // +
 			zoom(0.5);
 		} else if(e.keyCode == 189) { // -
@@ -268,16 +294,19 @@ window.onload = function() {
 	});
 	*/
 
-	/*
-	var rad = Math.min(mid.x, mid.y) * 0.1
-	console.log(mid.x, mid.y, rad);
+	//var rad = Math.min(mid.x, mid.y) * 0.1
+	//console.log(mid.x, mid.y, rad);
 	var ang = 0;
 	setInterval(function() {
 			if(loadActive) {
 				var a = ang * Math.PI / 180;
-				loadBalls(ctx, mid, rad, a);
+				if(activeZoomNow != null) {
+					if(Math.abs(activeZoomTarget - activeZoomNow) > 0.0001) {
+						activeZoomNow += activeZoomD;
+					}
+				}
+				loadBalls(a);
 				ang = (ang + 3) % 360;
 			}
 		}, 20);
-	*/
 }
