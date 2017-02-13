@@ -16,31 +16,28 @@ typedef struct {
 //static ColorR color[MAX_LEN];
 //static int color_len = 0;
 
+typedef double (*Func)(long double, long double, int);
 typedef struct {
-	double min_x;
-	double min_y;
-	double dx;
-	double dy;
-	double width;
-	double height;
 	long double min_x_l;
 	long double min_y_l;
 	long double dx_l;
 	long double dy_l;
 	long double width_l;
 	long double height_l;
+	long double x0;
+	long double y0;
 	int depth;
 	ColorR color[MAX_LEN];
 	int color_len;
 } State;
 
-inline static double julia(double x, double y, int depth) {
-	double zx = 0;
-	double zy = 0;
-	double zx1, zy1;
+inline static double julia(long double x0, long double y0, long double x, long double y, int depth) {
+	long double zx = x;
+	long double zy = y;
+	long double zx1, zy1;
 	for(int i=0; i<depth; ++i) {
-		zx1 = (zx * zx) - (zy * zy) + x;
-		zy1 = zx * zy * 2 + y;
+		zx1 = (zx * zx) - (zy * zy) + x0;
+		zy1 = zx * zy * 2 + y0;
 		if(zx1 * zx1 + zy1 * zy1 > 4)
 			return (double)i;
 		else {
@@ -51,9 +48,9 @@ inline static double julia(double x, double y, int depth) {
 	return (double)depth;
 }
 
-inline static double julia_long(long double x, long double y, int depth) {
-	long double zx = 0;
-	long double zy = 0;
+inline static double mandelbort(long double x0, long double y0, long double x, long double y, int depth) {
+	long double zx = x0;
+	long double zy = y0;
 	long double zx1, zy1;
 	for(int i=0; i<depth; ++i) {
 		zx1 = (zx * zx) - (zy * zy) + x;
@@ -109,14 +106,8 @@ void add_clr(State* state, int r, int g, int b) {
 	state -> color_len = (color_len + 1) % MAX_LEN;
 }
 
-State* new_state(int w, int h, double x, double X, double y, double Y, int d) {
+State* new_state(int w, int h, double x, double X, double y, double Y, int d, double x0, double y0) {
 	State* state = malloc(sizeof(State));
-	state -> dx = X - x;
-	state -> min_x = x;
-	state -> dy = Y - y;
-	state -> min_y = y;
-	state -> width = (double)w;
-	state -> height = (double)h;
 	
 	state -> dx_l = X - x;
 	state -> min_x_l = x;
@@ -124,9 +115,13 @@ State* new_state(int w, int h, double x, double X, double y, double Y, int d) {
 	state -> min_y_l = y;
 	state -> width_l = w;
 	state -> height_l = h;
+
+	state -> x0 = x0;
+	state -> y0 = y0;
 	
 	state -> depth = d;
 	state -> color_len = 0;
+
 	return state;
 }
 
@@ -134,20 +129,20 @@ void delete_state(State* s) {
 	free(s);
 }
 
-ColorI point_color(State* state, int px, int py) {
-	double x = (double)px / state -> width;
-	double y = (double)py / state -> height;
-	x = state -> min_x + x * state -> dx;
-	y = state -> min_y + y * state -> dy;
-	int d = state -> depth;
-	return get_color(state, julia(x,y,d) / d);
-}
-
-ColorI point_color_long(State* state, int px, int py) {
+ColorI pt_color_j(State* state, int px, int py) {
 	long double x = (long double)px / state -> width_l;
 	long double y = (long double)py / state -> height_l;
 	x = state -> min_x_l + x * state -> dx_l;
 	y = state -> min_y_l + y * state -> dy_l;
 	int d = state -> depth;
-	return get_color(state, julia_long(x,y,d) / d);
+	return get_color(state, julia(state -> x0, state -> y0, x,y,d) / d);
+}
+
+ColorI pt_color_m(State* state, int px, int py) {
+	long double x = (long double)px / state -> width_l;
+	long double y = (long double)py / state -> height_l;
+	x = state -> min_x_l + x * state -> dx_l;
+	y = state -> min_y_l + y * state -> dy_l;
+	int d = state -> depth;
+	return get_color(state, mandelbort(state -> x0, state -> y0, x,y,d) / d);
 }
