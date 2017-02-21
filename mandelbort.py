@@ -26,12 +26,12 @@ color_sets = [
 class Render:
     def __init__(self):
         ffi = cffi.FFI()
-        ffi.cdef('struct Color{int r; int g; int b;};')
+        #ffi.cdef('struct Color{int r; int g; int b;};')
         ffi.cdef('void* new_state(int w, int h, double x, double X, double y, double Y, int d, double x0, double y0);')
         ffi.cdef('void delete_state(void* s);')
         ffi.cdef('void add_clr(void*, int r, int g, int b);')
-        ffi.cdef('struct Color pt_color_j(void* s, int px, int py);')
-        ffi.cdef('struct Color pt_color_m(void* s, int px, int py);')
+        ffi.cdef('int pt_color_j(void* s, int px, int py);')
+        ffi.cdef('int pt_color_m(void* s, int px, int py);')
         path = os.path.dirname(os.path.abspath(__file__))
         lib = os.path.join(path, 'libcalc.so')
         print(lib)
@@ -52,8 +52,9 @@ class Render:
             lib.add_clr(state, r, g, b)
         for x in range(width):
             for y in range(height):
-                clr = f(state,x,y)#lib.point_color(state, x,y)
-                pic[x,y] = (clr.r, clr.g, clr.b)
+                #clr = f(state,x,y)
+                #pic[x,y] = (clr.r, clr.g, clr.b)
+                pic[x,y] = f(state,x,y)
         lib.delete_state(state)
         img = img.filter(ImageFilter.SMOOTH)
         return img;
@@ -88,7 +89,7 @@ if __name__ == "__main__":
 #    dx = float(sys.argv[4])
 #    dy = float(sys.argv[5])
     print(px,py,mx,my,dx,dy,s)
-    pic = render.draw_j(px,py,mx,my,dx,dy,s,0,x0,y0)
+    pic = render.draw_m(px,py,mx,my,dx,dy,s,0,x0,y0)
     pic.save('pic.png')
 
 #draw_c(500,500,-2,-1,-0.5,0.5)

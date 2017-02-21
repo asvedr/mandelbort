@@ -12,6 +12,8 @@ typedef struct {
 	int b;
 } ColorI;
 
+typedef int ResColor;
+
 #define MAX_LEN 5
 //static ColorR color[MAX_LEN];
 //static int color_len = 0;
@@ -65,7 +67,7 @@ inline static double mandelbort(long double x0, long double y0, long double x, l
 	return (double)depth;
 }
 
-inline static ColorI get_color(State* state, double x) {
+inline static ResColor get_color(State* state, double x) {
 	ColorR buf[MAX_LEN];
 	ColorR* color = state -> color;
 	for(int i=0; i<state -> color_len - 1; ++i) {
@@ -86,11 +88,15 @@ inline static ColorI get_color(State* state, double x) {
 		len--;
 #undef COMP
 	}
-	ColorI res;
-	res.r = (int)buf[0].r;
-	res.g = (int)buf[0].g;
-	res.b = (int)buf[0].b;
-	return res;
+	//ColorI res;
+	//res.r = (int)buf[0].r;
+	//res.g = (int)buf[0].g;
+	//res.b = (int)buf[0].b;
+	//return res;
+	int r = ((int)buf[0].r);// << 16;
+	int g = ((int)buf[0].g) << 8;
+	int b = ((int)buf[0].b) << 16;
+	return r | g | b;
 }
 
 /*void null_clr() {
@@ -129,7 +135,7 @@ void delete_state(State* s) {
 	free(s);
 }
 
-ColorI pt_color_j(State* state, int px, int py) {
+ResColor pt_color_j(State* state, int px, int py) {
 	long double x = (long double)px / state -> width_l;
 	long double y = (long double)py / state -> height_l;
 	x = state -> min_x_l + x * state -> dx_l;
@@ -138,7 +144,7 @@ ColorI pt_color_j(State* state, int px, int py) {
 	return get_color(state, julia(state -> x0, state -> y0, x,y,d) / d);
 }
 
-ColorI pt_color_m(State* state, int px, int py) {
+ResColor pt_color_m(State* state, int px, int py) {
 	long double x = (long double)px / state -> width_l;
 	long double y = (long double)py / state -> height_l;
 	x = state -> min_x_l + x * state -> dx_l;
