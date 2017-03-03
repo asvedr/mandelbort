@@ -1,6 +1,7 @@
 "use strict";
 
-var address = 'vitchenko.xyz:80';
+var drawMethod = "man";//"man";
+var address = 'vitchenko.xyz:8080';
 var loadActive = true;
 var image = null;
 var bg = null;
@@ -11,11 +12,14 @@ var context;
 var scl = 3;
 var samplesCount = 100;
 var mathpos;
+//var nullP;
 var preset=0;
 var inputSamp;
 var inputZoom;
 var inputX;
 var inputY;
+var inputX0;
+var inputY0;
 var activeZoomTarget = null;
 var activeZoomD = null;
 var activeZoomNow = null;
@@ -58,7 +62,11 @@ function Point(x,y) {
 	}
 }
 
+var requestav = true;
 function requestPicture(w, h, mid, scl, callback) {
+	if(!requestav)
+		return;
+	requestav = false;
 	loadActive = true;
 	var xmlHttp = new XMLHttpRequest();
 	xmlHttp.onreadystatechange = function() {
@@ -67,10 +75,24 @@ function requestPicture(w, h, mid, scl, callback) {
 			//var url = URL.createObjectURL(blob);
 			//callback(url);
 			var js = JSON.parse(xmlHttp.responseText);
+			requestav = true;
 			callback(js['target'], js['bg'])
 		}
 	}
-	var params = 'a=reg&w={0}&h={1}&x={2}&y={3}&scl={4}&samp={5}&clr={6}'.format(w,h,mid.x,mid.y,scl,samplesCount,preset);
+	pfloat(inputX0.value);
+	pfloat(inputY0.value);
+	var params = 'a=reg&w={0}&h={1}&x={2}&y={3}&scl={4}&samp={5}&clr={6}&x0={7}&y0={8}&f={9}'.format(
+			w,
+			h,
+			mid.x,
+			mid.y,
+			scl,
+			samplesCount,
+			preset,
+			inputX0.value,
+			inputY0.value,
+			drawMethod
+		);
 	xmlHttp.open('GET', 'http://' + address + '/render?' + params, true);
 	xmlHttp.responseType = "text";
 	xmlHttp.send(null);
@@ -123,6 +145,8 @@ function drawImg(urlt,urlb) {
 }
 
 function redrawPic() {
+	if(waitfor > 0)
+		return;
 	//console.log(activeZoomNow);
 	var bgp = screenSize.mul(-1).add(picShift);
 	if(activeZoomNow != null) {
@@ -167,6 +191,8 @@ function pint (a) {var i = parseInt(a); if(isNaN(i)) {throw 'NaN';} else {return
 function pfloat (a) {var i = parseFloat(a); if(isNaN(i)) {throw 'NaN';} else {return i;}};
 
 function zoom(c) {
+	if(!requestav)
+		return;
 	scl = scl * c;
 	newView();
 	activeZoomTarget = 1 / c;
@@ -242,12 +268,29 @@ window.onload = function() {
 			newView();
 		} catch(a){}
 	}
+	inputX0 = document.getElementById("x0");
+	inputX0.value = '0';//'0';
+	inputX0.onchange = function() {
+		try {
+			/*nullP.x = */pfloat(inputX0.value);
+			newView();
+		} catch(a){}
+	}
+	inputY0 = document.getElementById("y0");
+	inputY0.value = '0';
+	inputY0.onchange = function() {
+		try {
+			/*nullP.y = */pfloat(inputY0.value);
+			newView();
+		} catch(a){}
+	}
+	//nullP = new Point(0,0);
 	var ds = 16;
 	canvas.width = document.body.clientWidth;//window.innerWidth - ds;
 	canvas.height = document.body.clientHeight;//window.innerHeight - ds;
 	var btndown = false;
 	canvas.onmousedown = function(e) {
-		if(!loadActive) {
+		if(!loadActive && requestav) {
 			picShift = new Point(0, 0);
 			mouseDownIn = new Point(e.screenX, e.screenY);
 			btndown = true;
@@ -255,8 +298,14 @@ window.onload = function() {
 	}
 	canvas.onmouseup = function() {
 		if(btndown) {
-			btndown = false;
-			newView();
+			if(picShift && picShift.len() > 5) {
+				btndown = false;
+				newView();
+			} else {
+				btndown = false;
+				picShift = new Point(0,0);
+				redrawPic()
+			}
 		}
 	}
 	canvas.onmousemove = function(e) {
@@ -287,15 +336,6 @@ window.onload = function() {
 	var ctx = canvas.getContext('2d');
 	context = ctx;
 	newView();
-	/*
-	requestPicture(canvas.width, canvas.height, mid, 3, function(a,b){
-		//loadActive = false;
-		drawImg(ctx, a,b);
-	});
-	*/
-
-	//var rad = Math.min(mid.x, mid.y) * 0.1
-	//console.log(mid.x, mid.y, rad);
 	var ang = 0;
 	setInterval(function() {
 			if(loadActive) {

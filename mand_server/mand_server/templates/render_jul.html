@@ -1,12 +1,12 @@
 {% load static %}
 <html>
-	<head><script type="text/javascript" src="{% static "js/draw.js"%}"></script></head>
+	<head><script type="text/javascript" src="{% static "js/draw_jul.js"%}"></script></head>
 	<body style="margin:0;padding:0">
 		<div style="position:relative;font-size:8pt">
 			<canvas id="mainView" width=50 height=50
 				style="top:0px;left:0px"
 			></canvas>
-			<img src="{% static "imgs/whitequad.png"%}" style="position:absolute;right:0px;top:0px;width:100px;height:100px"/>
+			<img src="{% static "imgs/whitequad.png"%}" style="position:absolute;right:0px;top:0px;width:100px;height:140px"/>
 			<div style="position:absolute;right:55px;top:12px">samples</div>
 			<input id="samples" type="text" style="position:absolute;right:10px;top:10px;width:40px;" />
 			<div style="position:absolute;right:55px;top:32px">zoom</div>
@@ -15,6 +15,11 @@
 			<input id="x" type="text" style="position:absolute;right:10px;top:50px;width:75px;" />
 			<div style="position:absolute;right:90px;top:72px">y</div>
 			<input id="y" type="text" style="position:absolute;right:10px;top:70px;width:75px;" />
+
+			<div style="position:absolute;right:90px;top:92px">x0</div>
+			<input id="x0" type="text" style="position:absolute;right:10px;top:90px;width:75px;" />
+			<div style="position:absolute;right:90px;top:112px">y0</div>
+			<input id="y0" type="text" style="position:absolute;right:10px;top:110px;width:75px;" />
 		</div>
 	</body>
 </html>

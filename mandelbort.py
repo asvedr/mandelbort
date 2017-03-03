@@ -90,6 +90,6 @@ if __name__ == "__main__":
 #    dy = float(sys.argv[5])
     print(px,py,mx,my,dx,dy,s)
     pic = render.draw_m(px,py,mx,my,dx,dy,s,0,x0,y0)
-    pic.save('pic.png')
+    pic.save('pic.jpg', 'jpeg')
 
 #draw_c(500,500,-2,-1,-0.5,0.5)

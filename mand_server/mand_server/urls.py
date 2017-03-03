@@ -23,6 +23,9 @@ from . import settings
 
 urlpatterns = [
     #url(r'^admin/', admin.site.urls),
+    #url(r'^$', views.index),
+    url(r'^fract_man/', views.fract_man_page),
+    url(r'^fract_jul/', views.fract_jul_page),
     url(r'^$', views.index),
     url(r'^render/.*$', views.render),
     url(r'^static/(?P<path>.*)$', django.views.static.serve)

@@ -28,7 +28,7 @@ SECRET_KEY = '((=osbaj-&+@jks5=rhw31bawfpg6mh%rh=f3dk5g3x7k6%coi'
 DEBUG = True
 
 ALLOWED_HOSTS = [
-            #'95.215.47.224',
+            '95.215.47.224',
             'vitchenko.xyz'
         ]
 
